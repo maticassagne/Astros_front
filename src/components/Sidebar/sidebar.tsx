@@ -1,19 +1,4 @@
-import React from 'react';
-import {
-  LayoutDashboard,
-  FolderKanban,
-  CheckSquare,
-  BarChart3,
-  CircleDollarSign,
-  Receipt,
-  ShieldAlert,
-  Users,
-  ClipboardList,
-  Package,
-  LineChart,
-  Settings,
-  Search
-} from 'lucide-react';
+import { LayoutDashboard, FolderKanban, CheckSquare, BarChart3, CircleDollarSign, Receipt, ShieldAlert, Users, ClipboardList, Package, LineChart, Settings, Search } from "lucide-react";
 
 const Sidebar = () => {
   return (

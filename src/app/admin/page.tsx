@@ -1,17 +1,5 @@
-import React from 'react';
-import Sidebar from '@/components/Sidebar/sidebar';
-import {
-  Moon,
-  Bell,
-  ArrowLeft,
-  MapPin,
-  Calendar,
-  Image as ImageIcon,
-  ClipboardList,
-  Users,
-  CircleDollarSign,
-  ShieldAlert
-} from 'lucide-react';
+import Sidebar from "@/components/Sidebar/sidebar";
+import { Moon, Bell, ArrowLeft, MapPin, Calendar, Image as ImageIcon, ClipboardList, Users, CircleDollarSign, ShieldAlert } from "lucide-react";
 
 const AdminDashboard = () => {
   return (
@@ -50,20 +38,12 @@ const AdminDashboard = () => {
               </div>
               <h1 className="text-2xl font-bold text-slate-900 mb-1">Global Fashion Hub</h1>
               <p className="text-sm font-medium text-slate-500 mb-3">Premium E-commerce Branch</p>
-              <p className="text-sm text-slate-600 max-w-lg mb-6">
-                Main online storefront for apparel and accessories. Currently handling high volume seasonal sales.
-              </p>
-              
+              <p className="text-sm text-slate-600 max-w-lg mb-6">Main online storefront for apparel and accessories. Currently handling high volume seasonal sales.</p>
+
               <div className="flex items-center gap-3 mb-8">
-                <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold flex items-center gap-1">
-                  Active
-                </span>
-                <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold flex items-center gap-1">
-                  High Volume
-                </span>
-                <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1">
-                  Apparel
-                </span>
+                <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold flex items-center gap-1">Active</span>
+                <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold flex items-center gap-1">High Volume</span>
+                <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center gap-1">Apparel</span>
               </div>
             </div>
 
@@ -138,24 +118,12 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col mb-10">
             {/* Tabs */}
             <div className="flex items-center gap-1 p-2 border-b border-slate-100 bg-slate-50/50 overflow-x-auto">
-              <button className="px-4 py-2 bg-white rounded-lg shadow-sm text-sm font-semibold text-slate-900 whitespace-nowrap">
-                Orders (3)
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">
-                Invoices (2)
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">
-                Staff (2)
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">
-                Documents (2)
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">
-                Security (1)
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">
-                Products (3)
-              </button>
+              <button className="px-4 py-2 bg-white rounded-lg shadow-sm text-sm font-semibold text-slate-900 whitespace-nowrap">Orders (3)</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">Invoices (2)</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">Staff (2)</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">Documents (2)</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">Security (1)</button>
+              <button className="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg whitespace-nowrap transition-colors">Products (3)</button>
             </div>
 
             {/* Table */}
@@ -174,9 +142,7 @@ const AdminDashboard = () => {
                   <tr className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                     <td className="py-4 px-6 font-medium text-slate-900">#ORD-092 - Summer Collection</td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                        Completed
-                      </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">Completed</span>
                     </td>
                     <td className="py-4 px-6">
                       <span className="inline-flex items-center gap-1 text-red-500 font-medium text-xs">
@@ -189,9 +155,7 @@ const AdminDashboard = () => {
                   <tr className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                     <td className="py-4 px-6 font-medium text-slate-900">#ORD-093 - Electronics Restock</td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
-                        In progress
-                      </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">In progress</span>
                     </td>
                     <td className="py-4 px-6">
                       <span className="inline-flex items-center gap-1 text-red-500 font-medium text-xs">
@@ -204,9 +168,7 @@ const AdminDashboard = () => {
                   <tr className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-4 px-6 font-medium text-slate-900">#ORD-094 - Winter Clearance</td>
                     <td className="py-4 px-6">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                        Todo
-                      </span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">Todo</span>
                     </td>
                     <td className="py-4 px-6">
                       <span className="inline-flex items-center gap-1 text-yellow-500 font-medium text-xs">
