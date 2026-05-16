@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar/sidebar';
 import { mockProducts, Product } from '@/helpers/products';
 import { ChevronDown, Upload, Save, EyeOff, Download, Search } from 'lucide-react';
 
@@ -24,10 +23,7 @@ const ProductsPage = () => {
   });
 
   return (
-    <div className="flex h-screen bg-[#c9d0e1] text-slate-800 font-sans">
-      <Sidebar />
-
-      <main className="flex-1 flex overflow-hidden">
+    <main className="flex-1 flex overflow-hidden">
         {/* Left Column: Form & Images */}
         <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col items-center">
           
@@ -225,7 +221,6 @@ const ProductsPage = () => {
         </div>
 
       </main>
-    </div>
   );
 };
 

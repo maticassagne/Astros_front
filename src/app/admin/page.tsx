@@ -1,14 +1,8 @@
-import Sidebar from "@/components/Sidebar/sidebar";
 import { Moon, Bell, ArrowLeft, MapPin, Calendar, Image as ImageIcon, ClipboardList, Users, CircleDollarSign, ShieldAlert } from "lucide-react";
 
 const AdminDashboard = () => {
   return (
-    <div className="flex h-screen bg-[#f5f6f8] text-slate-800 font-sans">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-y-auto">
+    <main className="flex-1 flex flex-col h-full overflow-y-auto bg-[#f5f6f8]">
         {/* Content Body */}
         <div className="p-8 pt-2 max-w-7xl mx-auto w-full flex-1">
           {/* Banner Section */}
@@ -164,8 +158,7 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+    </main>
   );
 };
 

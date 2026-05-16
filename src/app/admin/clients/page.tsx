@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import Sidebar from '@/components/Sidebar/sidebar';
 import { Users, Search } from 'lucide-react';
 import { mockClients, Client } from '@/helpers/clients';
 import ClientCard from '@/components/ClientCard/ClientCard';
@@ -49,10 +48,7 @@ const ClientsPage = () => {
   );
 
   return (
-    <div className="flex h-screen bg-[#c9d0e1] text-slate-800 font-sans">
-      <Sidebar />
-
-      <main className="flex-1 overflow-y-auto p-8">
+    <main className="flex-1 overflow-y-auto p-8 bg-[#c9d0e1]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-12 gap-8 h-full">
           
           {/* Form Container (Left) */}
@@ -168,7 +164,6 @@ const ClientsPage = () => {
 
         </div>
       </main>
-    </div>
   );
 };
 
