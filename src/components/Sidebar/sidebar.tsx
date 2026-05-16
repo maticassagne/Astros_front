@@ -15,7 +15,7 @@ const Sidebar = () => {
           <h3 className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Overview</h3>
           <ul className="space-y-1 text-sm font-medium">
             <li>
-              <a href="/clients" className="flex items-center gap-3 text-slate-600 hover:text-slate-900 py-2 px-2 rounded-md hover:bg-slate-50">
+              <a href="/admin/clients" className="flex items-center gap-3 text-slate-600 hover:text-slate-900 py-2 px-2 rounded-md hover:bg-slate-50">
                 <LayoutDashboard size={18} />
                 Clientes
               </a>
