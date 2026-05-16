@@ -1,4 +1,4 @@
-import { LayoutDashboard, FolderKanban, CheckSquare, BarChart3, CircleDollarSign, Receipt, ShieldAlert, Users, ClipboardList, Package, LineChart, Settings, Search } from "lucide-react";
+import { LayoutDashboard, FolderKanban, CheckSquare, BarChart3, CircleDollarSign, Receipt, ShieldAlert, Users, ClipboardList, Package, LineChart, Settings, PackageSearch } from "lucide-react";
 
 const Sidebar = () => {
   return (
@@ -12,18 +12,18 @@ const Sidebar = () => {
 
       <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
         <div>
-          <h3 className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Overview</h3>
+          <h3 className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">Archivo</h3>
           <ul className="space-y-1 text-sm font-medium">
             <li>
               <a href="/admin/clients" className="flex items-center gap-3 text-slate-600 hover:text-slate-900 py-2 px-2 rounded-md hover:bg-slate-50">
-                <LayoutDashboard size={18} />
+                <Users size={18} />
                 Clientes
               </a>
             </li>
             <li>
-              <a href="#" className="flex items-center gap-3 text-slate-900 bg-slate-100 py-2 px-2 rounded-md">
-                <FolderKanban size={18} />
-                Orders
+              <a href="/admin/products" className="flex items-center gap-3 text-slate-900 bg-slate-100 py-2 px-2 rounded-md">
+                <PackageSearch size={18} />
+                Productos
               </a>
             </li>
             <li>

@@ -136,7 +136,7 @@ const ClientsPage = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="mb-4 relative">
+            <div className="mb-4 relative bg-white rounded-2xl">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
               <input 
                 type="text" 

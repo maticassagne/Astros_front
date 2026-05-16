@@ -9,25 +9,6 @@ const AdminDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-full overflow-y-auto">
-        {/* Top Header */}
-        <header className="flex items-center justify-between px-8 py-4 bg-[#f5f6f8] sticky top-0 z-10">
-          <button className="flex items-center gap-2 text-sm font-medium text-slate-700 hover:text-slate-900">
-            <ArrowLeft size={16} />
-            Back to Dashboard
-          </button>
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/50 transition-colors">
-              <Moon size={20} />
-            </button>
-            <button className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/50 transition-colors">
-              <Bell size={20} />
-            </button>
-            <div className="w-8 h-8 rounded-full bg-slate-300 overflow-hidden ml-2 border border-slate-200 shadow-sm cursor-pointer">
-              <img src="https://i.pravatar.cc/150?img=11" alt="Profile" className="w-full h-full object-cover" />
-            </div>
-          </div>
-        </header>
-
         {/* Content Body */}
         <div className="p-8 pt-2 max-w-7xl mx-auto w-full flex-1">
           {/* Banner Section */}
