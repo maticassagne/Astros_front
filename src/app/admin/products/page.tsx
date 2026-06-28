@@ -231,8 +231,17 @@ const ProductsPage = () => {
            (prod.codigoBarraBox && prod.codigoBarraBox.toLowerCase().includes(query));
   });
 
+  const calculateMargin = (priceStr: string, costStr: string) => {
+    const price = parseFloat(priceStr) || 0;
+    const cost = parseFloat(costStr) || 0;
+    if (cost <= 0 || price <= 0) return '0%';
+    const margin = ((price - cost) / cost) * 100;
+    return `${Math.round(margin)}%`;
+  };
+
   const renderPricingField = (label: string, fieldName: 'costo' | 'precio1' | 'precio2' | 'precio3' | 'precio4' | 'precio5') => {
     const usdFieldName = `${fieldName}Dolar` as 'costoDolar' | 'precio1Dolar' | 'precio2Dolar' | 'precio3Dolar' | 'precio4Dolar' | 'precio5Dolar';
+    const marginPercent = fieldName !== 'costo' ? calculateMargin(formData[fieldName], formData.costo) : '';
     
     return (
       <div>
@@ -262,17 +271,41 @@ const ProductsPage = () => {
                 className="w-full pl-9 pr-1.5 py-1.5 border border-slate-100 bg-slate-50 text-slate-500 font-semibold rounded-lg text-xs cursor-not-allowed focus:outline-none" 
               />
             </div>
+            {/* % Margin Output */}
+            {fieldName !== 'costo' && (
+              <div className="relative w-14 shrink-0" title="Margen de ganancia sobre costo">
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={marginPercent}
+                  className="w-full text-center py-1.5 border border-slate-100 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-[10px] cursor-not-allowed focus:outline-none" 
+                />
+              </div>
+            )}
           </div>
         ) : (
-          <div className="relative">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">$</span>
-            <input 
-              type="text" 
-              value={formData[fieldName]} 
-              onChange={(e) => handleInputChange(fieldName, e.target.value)}
-              placeholder="0"
-              className="w-full pl-5 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-800" 
-            />
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">$</span>
+              <input 
+                type="text" 
+                value={formData[fieldName]} 
+                onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                placeholder="0"
+                className="w-full pl-5 pr-3 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-800" 
+              />
+            </div>
+            {/* % Margin Output */}
+            {fieldName !== 'costo' && (
+              <div className="relative w-14 shrink-0" title="Margen de ganancia sobre costo">
+                <input 
+                  type="text" 
+                  readOnly 
+                  value={marginPercent}
+                  className="w-full text-center py-1.5 border border-slate-100 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-[10px] cursor-not-allowed focus:outline-none" 
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
