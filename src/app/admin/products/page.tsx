@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { mockProducts, Product } from '@/helpers/products';
-import { ChevronDown, Upload, Save, EyeOff, Download, Search, PlusCircle } from 'lucide-react';
+import { ChevronDown, Upload, Save, EyeOff, Download, Search, PlusCircle, Calendar } from 'lucide-react';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>(mockProducts);
@@ -11,7 +11,39 @@ const ProductsPage = () => {
   const [dolarRate, setDolarRate] = useState<number>(1200);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
+  // Expiration lote form state
+  const [newLoteDate, setNewLoteDate] = useState('');
+  const [newLoteQty, setNewLoteQty] = useState('');
+
+  // FIFO simulation state
+  const [simQty, setSimQty] = useState('');
+  const [fifoLog, setFifoLog] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<{
+    descripcion: string;
+    codigoBarra: string;
+    codigoBarraSecundario: string;
+    codigoBarraBox: string;
+    stock: string;
+    costo: string;
+    precio1: string;
+    precio2: string;
+    precio3: string;
+    precio4: string;
+    precio5: string;
+    rubro: string;
+    proveedor: string;
+    ocultarCatalogo: boolean;
+    precioEnDolar: boolean;
+    costoDolar: string;
+    precio1Dolar: string;
+    precio2Dolar: string;
+    precio3Dolar: string;
+    precio4Dolar: string;
+    precio5Dolar: string;
+    tieneVencimiento: boolean;
+    lotes: { id: string; fechaVencimiento: string; cantidad: number }[];
+  }>({
     descripcion: '',
     codigoBarra: '',
     codigoBarraSecundario: '',
@@ -33,7 +65,14 @@ const ProductsPage = () => {
     precio3Dolar: '',
     precio4Dolar: '',
     precio5Dolar: '',
+    tieneVencimiento: false,
+    lotes: [],
   });
+
+  // Calculate stock dynamically based on lotes if they exist
+  const calculatedStock = formData.lotes && formData.lotes.length > 0
+    ? formData.lotes.reduce((sum, l) => sum + (parseInt(l.cantidad.toString()) || 0), 0).toString()
+    : formData.stock;
 
   // Handle select product
   const handleSelectProduct = (product: Product) => {
@@ -60,7 +99,10 @@ const ProductsPage = () => {
       precio3Dolar: product.precio3Dolar || '',
       precio4Dolar: product.precio4Dolar || '',
       precio5Dolar: product.precio5Dolar || '',
+      tieneVencimiento: product.tieneVencimiento || false,
+      lotes: product.lotes || [],
     });
+    setFifoLog(null);
   };
 
   // Clear form
@@ -88,7 +130,13 @@ const ProductsPage = () => {
       precio3Dolar: '',
       precio4Dolar: '',
       precio5Dolar: '',
+      tieneVencimiento: false,
+      lotes: [],
     });
+    setNewLoteDate('');
+    setNewLoteQty('');
+    setSimQty('');
+    setFifoLog(null);
   };
 
   const handleInputChange = (field: string, value: any) => {
@@ -122,6 +170,106 @@ const ProductsPage = () => {
       [`${field}Dolar`]: usdValue,
       [field]: arsValue
     }));
+  };
+
+  // Expiration lotes handlers
+  const handleAddLote = () => {
+    if (!newLoteDate || !newLoteQty) {
+      alert('Debe ingresar la fecha de vencimiento y la cantidad');
+      return;
+    }
+    const qty = parseInt(newLoteQty) || 0;
+    if (qty <= 0) {
+      alert('La cantidad debe ser mayor a 0');
+      return;
+    }
+
+    const newLote = {
+      id: `LOTE-${Date.now()}`,
+      fechaVencimiento: newLoteDate,
+      cantidad: qty
+    };
+
+    setFormData(prev => {
+      const updatedLotes = [...prev.lotes, newLote].sort((a, b) => 
+        new Date(a.fechaVencimiento).getTime() - new Date(b.fechaVencimiento).getTime()
+      );
+      const newStock = updatedLotes.reduce((sum, l) => sum + l.cantidad, 0).toString();
+      return {
+        ...prev,
+        lotes: updatedLotes,
+        stock: newStock
+      };
+    });
+
+    setNewLoteDate('');
+    setNewLoteQty('');
+  };
+
+  const handleRemoveLote = (id: string) => {
+    setFormData(prev => {
+      const updatedLotes = prev.lotes.filter(l => l.id !== id);
+      const newStock = updatedLotes.reduce((sum, l) => sum + l.cantidad, 0).toString();
+      return {
+        ...prev,
+        lotes: updatedLotes,
+        stock: newStock
+      };
+    });
+  };
+
+  // FIFO Deduction Simulator
+  const handleApplyFifoDeduction = () => {
+    const qtyToDeduct = parseInt(simQty) || 0;
+    if (qtyToDeduct <= 0) {
+      alert('Ingrese una cantidad válida para deducir');
+      return;
+    }
+
+    const currentTotalStock = formData.lotes.reduce((sum, l) => sum + l.cantidad, 0);
+    if (qtyToDeduct > currentTotalStock) {
+      alert(`Stock insuficiente. Solo hay ${currentTotalStock} unidades disponibles en total.`);
+      return;
+    }
+
+    let remainingDeduction = qtyToDeduct;
+    const logMessages: string[] = [];
+
+    // Apply FIFO deduction loop (sorted oldest first)
+    const finalLotes = formData.lotes
+      .map(lote => ({ ...lote }))
+      .sort((a, b) => new Date(a.fechaVencimiento).getTime() - new Date(b.fechaVencimiento).getTime())
+      .map(lote => {
+        if (remainingDeduction <= 0) return lote;
+
+        if (lote.cantidad <= remainingDeduction) {
+          remainingDeduction -= lote.cantidad;
+          logMessages.push(`Lote ${lote.fechaVencimiento}: Consumidas ${lote.cantidad} uds (Lote agotado)`);
+          lote.cantidad = 0;
+        } else {
+          lote.cantidad -= remainingDeduction;
+          logMessages.push(`Lote ${lote.fechaVencimiento}: Consumidas ${remainingDeduction} uds (Quedan ${lote.cantidad} uds)`);
+          remainingDeduction = 0;
+        }
+        return lote;
+      })
+      .filter(lote => lote.cantidad > 0);
+
+    setFormData(prev => {
+      const newStock = finalLotes.reduce((sum, l) => sum + l.cantidad, 0).toString();
+      return {
+        ...prev,
+        lotes: finalLotes,
+        stock: newStock
+      };
+    });
+
+    setFifoLog(`Deducidas ${qtyToDeduct} uds mediante FIFO:\n` + logMessages.join('\n'));
+    setSimQty('');
+
+    setTimeout(() => {
+      setFifoLog(null);
+    }, 8000);
   };
 
   // Recalculate ARS prices when dolarRate changes if priceEnDolar is active
@@ -161,7 +309,7 @@ const ProductsPage = () => {
         codigoBarra: formData.codigoBarra,
         codigoBarraSecundario: formData.codigoBarraSecundario,
         codigoBarraBox: formData.codigoBarraBox,
-        stock: formData.stock,
+        stock: calculatedStock,
         costo: formData.costo,
         precio1: formData.precio1,
         precio2: formData.precio2,
@@ -178,6 +326,8 @@ const ProductsPage = () => {
         precio3Dolar: formData.precioEnDolar ? formData.precio3Dolar : undefined,
         precio4Dolar: formData.precioEnDolar ? formData.precio4Dolar : undefined,
         precio5Dolar: formData.precioEnDolar ? formData.precio5Dolar : undefined,
+        tieneVencimiento: formData.tieneVencimiento,
+        lotes: formData.tieneVencimiento ? formData.lotes : undefined,
         fechaModificacion: new Date().toISOString().split('T')[0],
       };
       setProducts(prev => prev.map(p => p.id === selectedProduct.id ? updatedProduct : p));
@@ -191,7 +341,7 @@ const ProductsPage = () => {
         codigoBarra: formData.codigoBarra,
         codigoBarraSecundario: formData.codigoBarraSecundario,
         codigoBarraBox: formData.codigoBarraBox,
-        stock: formData.stock,
+        stock: calculatedStock,
         costo: formData.costo,
         precio1: formData.precio1,
         precio2: formData.precio2,
@@ -208,6 +358,8 @@ const ProductsPage = () => {
         precio3Dolar: formData.precioEnDolar ? formData.precio3Dolar : undefined,
         precio4Dolar: formData.precioEnDolar ? formData.precio4Dolar : undefined,
         precio5Dolar: formData.precioEnDolar ? formData.precio5Dolar : undefined,
+        tieneVencimiento: formData.tieneVencimiento,
+        lotes: formData.tieneVencimiento ? formData.lotes : undefined,
         imagenes: ['https://picsum.photos/seed/new/400/400'],
         fechaCreacion: new Date().toISOString().split('T')[0],
         fechaModificacion: new Date().toISOString().split('T')[0],
@@ -351,18 +503,7 @@ const ProductsPage = () => {
 
             <form onSubmit={handleSaveProduct} className="space-y-4">
               {/* Basic Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Descripción</label>
-                  <input 
-                    type="text" 
-                    value={formData.descripcion}
-                    onChange={(e) => handleInputChange('descripcion', e.target.value)}
-                    placeholder="Ingrese el nombre descriptivo del producto"
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-800"
-                  />
-                </div>
-                
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Código de barra</label>
                   <input 
@@ -373,6 +514,7 @@ const ProductsPage = () => {
                     className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-800" 
                   />
                 </div>
+                
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Código de barra Secundario</label>
                   <input 
@@ -383,6 +525,7 @@ const ProductsPage = () => {
                     className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-800" 
                   />
                 </div>
+                
                 <div>
                   <label className="block text-xs font-medium text-slate-700 mb-1">Código de barra (Caja)</label>
                   <input 
@@ -393,16 +536,201 @@ const ProductsPage = () => {
                     className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-800" 
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Stock</label>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Descripción</label>
                   <input 
                     type="text" 
-                    value={formData.stock} 
-                    onChange={(e) => handleInputChange('stock', e.target.value)}
-                    placeholder="Cantidad disponible"
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-800" 
+                    value={formData.descripcion}
+                    onChange={(e) => handleInputChange('descripcion', e.target.value)}
+                    placeholder="Ingrese el nombre descriptivo del producto"
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-800"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 mb-1">Stock Total</label>
+                  <input 
+                    type="text" 
+                    value={calculatedStock} 
+                    readOnly={formData.lotes && formData.lotes.length > 0}
+                    onChange={(e) => handleInputChange('stock', e.target.value)}
+                    placeholder="Cantidad disponible"
+                    className={`w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 ${
+                      formData.lotes && formData.lotes.length > 0 ? 'bg-slate-50 text-slate-500 cursor-not-allowed border-slate-100' : 'bg-white text-slate-800'
+                    }`} 
+                  />
+                </div>
+              </div>
+
+              {/* Lotes y Vencimientos (FIFO) Section */}
+              <div className="pt-4 border-t border-slate-100">
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="tieneVencimiento"
+                        checked={formData.tieneVencimiento}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setFormData(prev => ({
+                            ...prev,
+                            tieneVencimiento: checked,
+                            // Clear lotes when disabling to avoid stale data influencing stock
+                            lotes: checked ? prev.lotes : [],
+                            stock: checked ? prev.stock : (selectedProduct?.stock || ''),
+                          }));
+                          if (!e.target.checked) {
+                            setNewLoteDate('');
+                            setNewLoteQty('');
+                            setSimQty('');
+                            setFifoLog(null);
+                          }
+                        }}
+                        className="w-3.5 h-3.5 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                      />
+                      <label
+                        htmlFor="tieneVencimiento"
+                        className="text-sm font-semibold text-slate-700 cursor-pointer select-none flex items-center gap-1.5"
+                      >
+                        <Calendar size={15} className="text-indigo-500" />
+                        Vencimiento
+                      </label>
+                    </div>
+                    {formData.tieneVencimiento && (
+                      <span className="text-[10px] text-slate-400 font-medium">Prioriza egreso del lote que vence primero (FIFO)</span>
+                    )}
+                  </div>
+                </div>
+
+                {formData.tieneVencimiento && (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                  {/* Left sub-column: Add Batch Form & FIFO simulator */}
+                  <div className="lg:col-span-5 space-y-4">
+                    {/* Add Batch */}
+                    <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                      <h4 className="text-xs font-bold text-slate-700 mb-2">Ingresar Nuevo Lote</h4>
+                      <div className="space-y-2">
+                        <div>
+                          <label className="block text-[10px] font-medium text-slate-500 mb-0.5">Vencimiento</label>
+                          <input 
+                            type="date" 
+                            value={newLoteDate} 
+                            onChange={(e) => setNewLoteDate(e.target.value)}
+                            className="w-full border border-slate-200 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-700" 
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-medium text-slate-500 mb-0.5">Cantidad / Unidades</label>
+                          <div className="flex gap-2">
+                            <input 
+                              type="number" 
+                              placeholder="Ej: 50" 
+                              value={newLoteQty} 
+                              onChange={(e) => setNewLoteQty(e.target.value)}
+                              className="flex-1 border border-slate-200 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-700" 
+                            />
+                            <button 
+                              type="button" 
+                              onClick={handleAddLote}
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+                            >
+                              Agregar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* FIFO Simulation */}
+                    {formData.lotes && formData.lotes.length > 0 && (
+                      <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                        <h4 className="text-xs font-bold text-slate-700 mb-2">Simulador Egreso Stock (FIFO)</h4>
+                        <div className="flex gap-2">
+                          <input 
+                            type="number" 
+                            placeholder="Cantidad a deducir" 
+                            value={simQty} 
+                            onChange={(e) => setSimQty(e.target.value)}
+                            className="flex-1 border border-slate-200 rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50 bg-white text-slate-700" 
+                          />
+                          <button 
+                            type="button" 
+                            onClick={handleApplyFifoDeduction}
+                            className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded-lg text-xs font-medium transition-colors"
+                          >
+                            Aplicar FIFO
+                          </button>
+                        </div>
+                        {fifoLog && (
+                          <pre className="mt-2 text-[9px] bg-slate-900 text-amber-400 p-2 rounded-lg font-mono leading-relaxed whitespace-pre-wrap">
+                            {fifoLog}
+                          </pre>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right sub-column: Batches Table */}
+                  <div className="lg:col-span-7 flex flex-col justify-start">
+                    <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden h-full">
+                      <div className="bg-slate-50 border-b border-slate-200 px-3 py-2 text-[11px] font-bold text-slate-700">
+                        Lotes y Vencimientos Activos ({formData.lotes?.length || 0})
+                      </div>
+                      <div className="overflow-y-auto max-h-[220px]">
+                        <table className="w-full text-left text-xs">
+                          <thead>
+                            <tr className="bg-slate-50/50 text-slate-400 border-b border-slate-100">
+                              <th className="font-semibold py-1.5 px-3">Lote ID</th>
+                              <th className="font-semibold py-1.5 px-3">Vencimiento</th>
+                              <th className="font-semibold py-1.5 px-3 text-right">Cantidad</th>
+                              <th className="font-semibold py-1.5 px-3 text-center">Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 text-slate-700">
+                            {formData.lotes && formData.lotes.length > 0 ? (
+                              formData.lotes.map((lote, index) => (
+                                <tr key={lote.id} className="hover:bg-slate-50/30 transition-colors">
+                                  <td className="py-2 px-3 font-mono text-[10px] text-slate-400">
+                                    {lote.id.startsWith('LOTE-') ? lote.id : `LOTE-${lote.id}`}
+                                    {index === 0 && (
+                                      <span className="ml-1.5 bg-rose-50 text-rose-600 text-[8px] px-1 py-0.2 rounded font-bold border border-rose-100">
+                                        PROXIMO
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-2 px-3 font-medium">
+                                    {lote.fechaVencimiento}
+                                  </td>
+                                  <td className="py-2 px-3 font-bold text-slate-800 text-right">
+                                    {lote.cantidad}
+                                  </td>
+                                  <td className="py-2 px-3 text-center">
+                                    <button 
+                                      type="button" 
+                                      onClick={() => handleRemoveLote(lote.id)}
+                                      className="text-rose-500 hover:text-rose-700 font-semibold px-2 py-0.5 hover:bg-rose-50 rounded"
+                                    >
+                                      Eliminar
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td colSpan={4} className="text-center py-8 text-slate-400 italic">
+                                  Sin vencimientos registrados. El stock se cargará de forma manual.
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                )}
               </div>
 
               {/* Precios y Costos Header with Dólar settings */}
