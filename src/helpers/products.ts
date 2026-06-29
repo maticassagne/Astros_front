@@ -24,10 +24,13 @@ export interface Product {
   precio3Dolar?: string;
   precio4Dolar?: string;
   precio5Dolar?: string;
+  tieneVencimiento?: boolean;
+  lotes?: { id: string; fechaVencimiento: string; cantidad: number }[];
 }
 
 export const mockProducts: Product[] = Array.from({ length: 10 }).map((_, i) => {
   const isDolar = i % 2 === 0;
+  const tieneVencimiento = i % 2 === 1;
   const baseCosto = 1000 + i * 150;
   const basePrecio1 = 1500 + i * 200;
   const basePrecio2 = 1450 + i * 200;
@@ -65,6 +68,12 @@ export const mockProducts: Product[] = Array.from({ length: 10 }).map((_, i) => 
     precio3Dolar: isDolar ? (basePrecio3 / exchangeRate).toFixed(2) : undefined,
     precio4Dolar: isDolar ? (basePrecio4 / exchangeRate).toFixed(2) : undefined,
     precio5Dolar: isDolar ? (basePrecio5 / exchangeRate).toFixed(2) : undefined,
+    tieneVencimiento,
+    lotes: tieneVencimiento ? [
+      { id: `LOTE-${i}-1`, fechaVencimiento: new Date(2026, 7, 10 + i).toISOString().split('T')[0], cantidad: 20 + i * 5 },
+      { id: `LOTE-${i}-2`, fechaVencimiento: new Date(2026, 11, 15 + i).toISOString().split('T')[0], cantidad: 30 + i * 10 }
+    ] : undefined
   };
 });
+
 
